@@ -60,8 +60,13 @@ class Inventory(customtkinter.CTkToplevel):
         self.geometry("1000x500")
 #        self.inventory_window.resizable(True, True) # Width, Height
         
+        # header
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
+
+        # table view
+        self.tab_view = InevtoryTable(master=self)
+        self.tab_view.pack(padx=20, pady=20)
 
         # Close the window
         self.new_button = customtkinter.CTkButton(self, text="Close Window", command=self.close)
@@ -69,6 +74,23 @@ class Inventory(customtkinter.CTkToplevel):
     
     def close(self):
         self.destroy()
+
+# table for Invetory Data
+class InevtoryTable(customtkinter.CTkTabview):
+    def __init__(self, master, **kwargs):
+        super().__init__(master, **kwargs)
+
+        # create tabs
+        self.add("Artikelnummber")
+        self.add("Bezeichnung")
+        self.add("Menge")
+        self.add("VK")
+        self.add("EK")
+
+        # add widgets on tabs
+        self.label = customtkinter.CTkLabel(master=self.tab("Artikelnummber"))
+        self.label.grid(row=0, column=0, padx=20, pady=10)
+
 
 class Article(customtkinter.CTkToplevel):
     pass
