@@ -1,11 +1,28 @@
 # Standard library imports
 import sys
 
+# local .py 
+from app import crud, models
+from app.database import SessionLocal, engine
+
 # GUI Imports
 import tkinter as tk
 from tkinter import ttk
 import customtkinter
 
+# creating the db tabels
+models.Base.metadata.create_all(bind=engine)
+
+# helper function to access database session
+# dependency for the home function 
+def get_db():
+  db = SessionLocal()
+  try:
+    yield db
+  finally:
+    db.close()
+
+# basic apperance Options
 customtkinter.set_appearance_mode("dark")
 customtkinter.set_default_color_theme("dark-blue") 
 
@@ -83,21 +100,6 @@ class Inventory(customtkinter.CTkToplevel):
 
     def get_inventory_data(self):
         pass
-
-# table for Invetory Data
-#class InventoryTable(customtkinter.CTkTabview):
-    #def __init__(self, master, **kwargs):
-        #super().__init__(master, **kwargs)
-
-        # create Table
-        #treeview = ttk.Treeview()
-        #treeview.pack()
-
-
-        # add widgets on tabs
-        #self._label = customtkinter.CTkLabel(master=self.tab("Artikelnummer"))
-        #self._label.grid(row=0, column=0, padx=20, pady=10)
-
 
 class Article(customtkinter.CTkToplevel):
     pass
