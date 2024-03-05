@@ -58,17 +58,21 @@ class Inventory(customtkinter.CTkToplevel):
 
         self.header_font = customtkinter.CTkFont(family="Helvetica", size=18, weight="bold", slant="roman", underline=False, overstrike=False)
         self.title("Inventar")
-        self.geometry("1000x500")
-               
+        self.geometry("950x450")
+        self.minsize(900, 450)
+        self.maxsize(1000, 450)       
         # header
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        self.table_Inv = ttk.Treeview(self, columns=("size", "lastmod"))
-        self.table_Inv.heading("#0", text="File")
-        self.table_Inv.heading("size", text="Size")
-        self.table_Inv.heading("lastmod", text="Last modification")
-        self.table_Inv.pack(padx=20, pady=20) 
+        self.table_Inv = ttk.Treeview(self, columns=("Bezeichnung", "Anzahl", "EK", "VK"))
+        self.table_Inv.heading("#0", text="Artikel")
+        self.table_Inv.heading("Bezeichnung", text="Bezeichnung")
+        self.table_Inv.heading("Anzahl", text="Anzahl")
+        self.table_Inv.heading("EK", text="EK")
+        self.table_Inv.heading("VK", text="VK", )
+
+        self.table_Inv.pack(padx=20, pady=20, anchor=tk.CENTER) 
 
         # Close the window
         self.new_button = customtkinter.CTkButton(self, text="Close Window", command=self.close)
