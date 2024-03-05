@@ -2,7 +2,8 @@
 import sys
 
 # GUI Imports
-from tkinter import *
+import tkinter as tk
+from tkinter import ttk
 import customtkinter
 
 customtkinter.set_appearance_mode("dark")
@@ -36,13 +37,13 @@ class App(customtkinter.CTk):
 
     def open_inventar_window(self):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
-            self.toplevel_window  = Inventory(self)  # create window if its None or destroyed
+            self.toplevel_window = Inventory(self)  # create window if its None or destroyed
         else:
             self.toplevel_window.focus_set()  # if window exists focus it
     
     def open_article_window(self):
         if self.toplevel_window is None or not self.toplevel_window.winfo_exists():
-            self.toplevel_window  = Article()  # create window if its None or destroyed
+            self.toplevel_window = Article()  # create window if its None or destroyed
         else:
             self.toplevel_window.focus_set()  # if window exists focus it
     
@@ -51,22 +52,23 @@ class App(customtkinter.CTk):
 
 # inventory Windows
 class Inventory(customtkinter.CTkToplevel):
-	
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         self.header_font = customtkinter.CTkFont(family="Helvetica", size=18, weight="bold", slant="roman", underline=False, overstrike=False)
         self.title("Inventar")
         self.geometry("1000x500")
-#       self..resizable(True, True) # Width, Height
                
         # header
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        # table view
-        self.tab_view = InevtoryTable(master=self)
-        self.tab_view.pack(padx=20, pady=20) 
+        self.table_Inv = ttk.Treeview(self, columns=("size", "lastmod"))
+        self.table_Inv.heading("#0", text="File")
+        self.table_Inv.heading("size", text="Size")
+        self.table_Inv.heading("lastmod", text="Last modification")
+        self.table_Inv.pack(padx=20, pady=20) 
 
         # Close the window
         self.new_button = customtkinter.CTkButton(self, text="Close Window", command=self.close)
@@ -75,21 +77,22 @@ class Inventory(customtkinter.CTkToplevel):
     def close(self):
         self.destroy()
 
-# table for Invetory Data
-class InevtoryTable(customtkinter.CTkTabview):
-    def __init__(self, master, **kwargs):
-        super().__init__(master, **kwargs)
+    def get_inventory_data(self):
+        pass
 
-        # create tabs
-        self.add("Artikelnummber")
-        self.add("Bezeichnung")
-        self.add("Menge")
-        self.add("VK")
-        self.add("EK")
+# table for Invetory Data
+#class InventoryTable(customtkinter.CTkTabview):
+    #def __init__(self, master, **kwargs):
+        #super().__init__(master, **kwargs)
+
+        # create Table
+        #treeview = ttk.Treeview()
+        #treeview.pack()
+
 
         # add widgets on tabs
-        self.label = customtkinter.CTkLabel(master=self.tab("Artikelnummber"))
-        self.label.grid(row=0, column=0, padx=20, pady=10)
+        #self._label = customtkinter.CTkLabel(master=self.tab("Artikelnummer"))
+        #self._label.grid(row=0, column=0, padx=20, pady=10)
 
 
 class Article(customtkinter.CTkToplevel):
