@@ -14,12 +14,12 @@ class App(customtkinter.CTk):
         super().__init__(*args, **kwargs)
         
         self.header_font = customtkinter.CTkFont(family="Helvetica", size=44, weight="bold", slant="roman", underline=False, overstrike=False)
-        self.geometry("1200x800")
-        self.minsize(400, 400)
+        self.geometry("400x350")
+        self.minsize(400, 350)
         self.title("ERP")
         # self.set_appearance_mode("dark")
         # self.set_default_color_theme("dark-green")
-        
+       
         self.title_label = customtkinter.CTkLabel(self, text='Hauptmenü', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
         
@@ -58,15 +58,15 @@ class Inventory(customtkinter.CTkToplevel):
         self.header_font = customtkinter.CTkFont(family="Helvetica", size=18, weight="bold", slant="roman", underline=False, overstrike=False)
         self.title("Inventar")
         self.geometry("1000x500")
-#        self.inventory_window.resizable(True, True) # Width, Height
-        
+#       self..resizable(True, True) # Width, Height
+               
         # header
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
         # table view
         self.tab_view = InevtoryTable(master=self)
-        self.tab_view.pack(padx=20, pady=20)
+        self.tab_view.pack(padx=20, pady=20) 
 
         # Close the window
         self.new_button = customtkinter.CTkButton(self, text="Close Window", command=self.close)
