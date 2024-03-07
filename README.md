@@ -3,7 +3,8 @@
 ## Preparation
  1. python3 -m venv venv
  2. .\venv\Scripts\activate 
- 3. pip3 install customtkinker sqlalchemy
+ 3. pip3 install customtkinter sqlalchemy
+ 4. pip3 freeze > requirements.txt
 
 ## Databasse
 

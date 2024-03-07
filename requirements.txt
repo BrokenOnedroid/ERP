@@ -1,3 +1,6 @@
-Python 3.11
-sqlalchemy
-customtkinker
+customtkinter==5.2.2
+darkdetect==0.8.0
+greenlet==3.0.3
+packaging==23.2
+SQLAlchemy==2.0.28
+typing_extensions==4.10.0

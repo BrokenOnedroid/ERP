@@ -1,12 +1,16 @@
 #database table definitionsnow
+from sqlalchemy.orm import DeclarativeBase, relationship
+from sqlalchemy.orm import mapped_column
 
-from sqlalchemy import Boolean, Column, Integer, String, DateTime, ForeignKey, nvarchar
+from sqlalchemy import Float, Integer, String, DateTime, ForeignKey
+
 from sqlalchemy.sql import func
-
-from sqlalchemy.orm import relationship
 
 # Base comes of database.py
 from app.database import Base
+
+class Base(DeclarativeBase):
+    pass
 
 class Article(Base):
     """
@@ -14,13 +18,13 @@ class Article(Base):
     """
     __tablename__ = "article"
 
-    id = Column(Integer, primary_key=True, index=True)                          
-    article_number = Column(nvarchar(18), nullable=False)
-    name = Column(String(80))
-    purchase_price = Column(float, default=0.0)
-    purchase_price = Column(float, default=0.0)
-    ts = Column(DateTime(timezone=True), server_default=func.now())             # timestamp 
-    ts_last_change = Column(DateTime(timezone=True), server_default=func.now()) 
+    id = mapped_column(Integer, primary_key=True, index=True)                          
+    article_number = mapped_column(String(18), nullable=False)
+    name = mapped_column(String(80))
+    purchase_price = mapped_column(Float, default=0.0)
+    purchase_price = mapped_column(Float, default=0.0)
+    ts = mapped_column(DateTime(timezone=True), server_default=func.now())             # timestamp 
+    ts_last_change = mapped_column(DateTime(timezone=True), server_default=func.now()) 
 
 class Inventory(Base):
     """
@@ -28,7 +32,11 @@ class Inventory(Base):
     """
     __tablename__ = "inventory"
 
-    id = Column(Integer, primary_key=True, index=True)                      
-    article_number = Column(nvarchar(18), nullable=False)      
-    location = Column(String(20), default='NaN')   
-    stock = Column(float, default=0.0)                                             
+    id = mapped_column(Integer, primary_key=True, index=True)                      
+    article_number = mapped_column(String(18), ForeignKey('article.article_number'), nullable=False)
+    name = mapped_column(String(80))      
+    location = mapped_column(String(20), default='NaN')   
+    stock = mapped_column(Float, default=0.0)
+    
+    # Establish relationship with the Article table
+    article = relationship("Article", backref="inventory")                                             

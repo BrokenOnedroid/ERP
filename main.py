@@ -2,8 +2,9 @@
 import sys
 
 # local .py 
-from app import crud, models
-from app.database import SessionLocal, engine
+from app import crud, models 
+from app.database import engine
+from sqlalchemy import text
 
 # GUI Imports
 import tkinter as tk
@@ -12,15 +13,6 @@ import customtkinter
 
 # creating the db tabels
 models.Base.metadata.create_all(bind=engine)
-
-# helper function to access database session
-# dependency for the home function 
-def get_db():
-  db = SessionLocal()
-  try:
-    yield db
-  finally:
-    db.close()
 
 # basic apperance Options
 customtkinter.set_appearance_mode("dark")
@@ -74,6 +66,8 @@ class Inventory(customtkinter.CTkToplevel):
         super().__init__(*args, **kwargs)
 
         self.header_font = customtkinter.CTkFont(family="Helvetica", size=18, weight="bold", slant="roman", underline=False, overstrike=False)
+        self.counter = 0
+        
         self.title("Inventar")
         self.geometry("950x450")
         self.minsize(900, 450)
@@ -82,29 +76,37 @@ class Inventory(customtkinter.CTkToplevel):
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        self.table_Inv = ttk.Treeview(self, columns=("Bezeichnung", "Anzahl", "EK", "VK"))
+        self.table_Inv = ttk.Treeview(self, columns=("Bezeichnung", "Anzahl", "Ort"))
         self.table_Inv.heading("#0", text="Artikel")
         self.table_Inv.heading("Bezeichnung", text="Bezeichnung")
         self.table_Inv.heading("Anzahl", text="Anzahl")
-        self.table_Inv.heading("EK", text="EK")
-        self.table_Inv.heading("VK", text="VK", )
+        self.table_Inv.heading("Ort", text="Ort")
 
-        self.table_Inv.pack(padx=20, pady=20, anchor=tk.CENTER) 
+        self.table_Inv.pack(padx=20, pady=20, anchor=tk.CENTER, fill='x') 
 
         # Close the window
-        self.new_button = customtkinter.CTkButton(self, text="Close Window", command=self.close)
+        self.new_button = customtkinter.CTkButton(self, text="Schließen", command=self.close)
         self.new_button.pack(pady=40)
+
+        self.get_inventory_data()
     
     def close(self):
         self.destroy()
 
     def get_inventory_data(self):
-        pass
+        records = crud.get_inv_entries()
+        for record in records:
+            self.counter += 1
+            print("Record " + str(self.counter) + ":", record)
+            self.table_Inv.insert("", "end", text=record.article_number, values=(record.name, record.stock, record.location))
 
 class Article(customtkinter.CTkToplevel):
     pass
+#        self.table_Inv.heading("EK", text="EK")
+#        self.table_Inv.heading("VK", text="VK")
 
 # Main Function
 if __name__ == "__main__":
+    crud.add_test_data(art='420', name='not69', loc='HOME', stock=1.25)
     app = App()
     app.mainloop()
