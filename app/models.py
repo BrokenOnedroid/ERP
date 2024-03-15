@@ -3,7 +3,6 @@ from sqlalchemy.orm import DeclarativeBase, relationship
 from sqlalchemy.orm import mapped_column
 
 from sqlalchemy import Float, Integer, String, DateTime, ForeignKey
-
 from sqlalchemy.sql import func
 
 # Base comes of database.py
@@ -21,8 +20,9 @@ class Article(Base):
     id = mapped_column(Integer, primary_key=True, index=True)                          
     article_number = mapped_column(String(18), nullable=False)
     name = mapped_column(String(80))
+    additional_information = mapped_column(String(420))    
     purchase_price = mapped_column(Float, default=0.0)
-    purchase_price = mapped_column(Float, default=0.0)
+    selling_price = mapped_column(Float, default=0.0)
     ts = mapped_column(DateTime(timezone=True), server_default=func.now())             # timestamp 
     ts_last_change = mapped_column(DateTime(timezone=True), server_default=func.now()) 
 
