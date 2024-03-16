@@ -23,6 +23,7 @@ class Article(Base):
     additional_information = mapped_column(String(420))    
     purchase_price = mapped_column(Float, default=0.0)
     selling_price = mapped_column(Float, default=0.0)
+    producer = mapped_column(String(40), default="Unbekannt")  
     ts = mapped_column(DateTime(timezone=True), server_default=func.now())             # timestamp 
     ts_last_change = mapped_column(DateTime(timezone=True), server_default=func.now()) 
 

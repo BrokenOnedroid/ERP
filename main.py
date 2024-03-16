@@ -15,7 +15,7 @@ import customtkinter
 models.Base.metadata.create_all(bind=engine)
 
 # basic apperance Options
-customtkinter.set_appearance_mode("dark")
+customtkinter.set_appearance_mode("default")
 customtkinter.set_default_color_theme("dark-blue") 
 
 # Main Window
@@ -109,24 +109,77 @@ class Article(customtkinter.CTkToplevel):
         self.title("Artikel")
         self.geometry("950x450")
         self.minsize(900, 450)
-        self.maxsize(1000, 450)   
+        self.maxsize(1000, 100)   
         self.counter = 0     
         # header
         self.title_label = customtkinter.CTkLabel(self, text='Artikelübersicht', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        self.table_Art = ttk.Treeview(self, columns=("Name", "Zusatz", "VK", "EK"))
-        self.table_Art.heading("#0", text="Artikel")
-        self.table_Art.heading("Name", text="Name")
-        self.table_Art.heading("Zusatz", text="Zusatz")
-        self.table_Art.heading("VK", text="VK")
-        self.table_Art.heading("EK", text="EK")
+        #table style
+        self.style = ttk.Style()
+        self.style.theme_use('default')
+        
+        # table config
+        self.table_Art = ttk.Treeview(self, columns=("Artikel", "Name", "Zusatz", "Hersteller", "VK", "EK"))
+        self.style.configure("Treeview", background="#D3D3D3", foreground="black", rowheight=25, fieldbackground="#D3D3D3")
+
+        #Column settings
+        self.table_Art.column("#0", width=0, stretch=False)
+        self.table_Art.column("Artikel", width=60)
+        self.table_Art.column("Hersteller", width=100)
+        self.table_Art.column("VK", anchor="e", width=20)
+        self.table_Art.column("EK", anchor="e", width=20)
+    
+        self.table_Art.heading("#0", text="ID", anchor="w" )
+        self.table_Art.heading("Artikel", anchor="w", text="Artikel")
+        self.table_Art.heading("Name", anchor="w",text="Name")
+        self.table_Art.heading("Zusatz", anchor="w",text="Zusatz")
+        self.table_Art.heading("Hersteller", anchor="center", text="Hersteller")
+        self.table_Art.heading("VK", anchor="center",text="VK")
+        self.table_Art.heading("EK", anchor="center",text="EK")
 
         self.table_Art.pack(padx=20, pady=20, anchor=tk.CENTER, fill='x') 
 
-        # Close the window
+        #data boxes
+        
+        self.data_frame = customtkinter.CTkFrame(self)
+        self.data_frame.pack(fill="x", expand="yes", padx=20)
+
+        art_label = customtkinter.CTkLabel(self.data_frame, text="Artikel-Nr.")
+        art_label.grid(row=0, column=0, padx=10, pady=10)
+        art_entry = customtkinter.CTkEntry(self.data_frame)
+        art_entry.grid(row=0, column=1, padx=10, pady=10)
+
+        name_label = customtkinter.CTkLabel(self.data_frame, text="Name")
+        name_label.grid(row=0, column=2, padx=10, pady=10)
+        name_entry = customtkinter.CTkEntry(self.data_frame)
+        name_entry.grid(row=0, column=3, padx=10, pady=10)
+
+        add_label = customtkinter.CTkLabel(self.data_frame, text="Zusatz")
+        add_label.grid(row=0, column=4, padx=10, pady=10)
+        add_entry = customtkinter.CTkEntry(self.data_frame)
+        add_entry.grid(row=0, column=5, padx=10, pady=10)
+
+        prod_label = customtkinter.CTkLabel(self.data_frame, text="Hersteller")
+        prod_label.grid(row=1, column=0, padx=10, pady=10)
+        prod_entry = customtkinter.CTkEntry(self.data_frame)
+        prod_entry.grid(row=1, column=1, padx=10, pady=10)
+
+        sp_label = customtkinter.CTkLabel(self.data_frame, text="VK")
+        sp_label.grid(row=1, column=2, padx=10, pady=10)
+        sp_entry = customtkinter.CTkEntry(self.data_frame)
+        sp_entry.grid(row=1, column=3, padx=10, pady=10)
+
+        pp_label = customtkinter.CTkLabel(self.data_frame, text="EK")
+        pp_label.grid(row=1, column=4, padx=10, pady=10)
+        pp_entry = customtkinter.CTkEntry(self.data_frame)
+        pp_entry.grid(row=1, column=5, padx=10, pady=10)
+
+        # button Close the window
         self.new_button = customtkinter.CTkButton(self, text="Schließen", command=self.close)
         self.new_button.pack(pady=40)
+
+        self.get_art_data()
 
     def close(self):
         self.destroy()
@@ -136,13 +189,47 @@ class Article(customtkinter.CTkToplevel):
         for record in records:
             self.counter += 1
             #print("Record " + str(self.counter) + ":", record)
-            self.table_Art.insert("", "end", text=record.article_number, values=(record.name, record.additional_information, record.purchase_price, record.selling_price))
+            self.table_Art.insert("", "end", text=record.id, values=(record.article_number, record.name, record.additional_information, record.producer, record.purchase_price, record.selling_price))
+
+        
+    # Clear entry boxes
+    def clear_entries(self):
+	    # Clear entry boxes
+	    self.art_entry.delete(0)
+        self.name_entry.delete(0)
+        self.add_entry.delete(0, END)
+	    self.prod_entry.delete(0, END)
+	    self.sp_entry.delete(0, END)
+	    self.pp_entry.delete(0, END)
+
+    # Select Record
+    def select_record(self):
+	    # Clear entry boxes
+	    self.art_entry.delete(0, END)
+	    self.name_entry.delete(0, END)
+	    self.prod_entry.delete(0, END)
+	    self.address_entry.delete(0, END)
+	    self.sp_entry.delete(0, END)
+	    self.pp_entry.delete(0, END)
+
+	    # Grab record Number
+#	    self.selected = my_tree.focus()
+	    # Grab record values
+#	    self.values = my_tree.item(selected, 'values')
+
+	    # outpus to entry boxes
+	    self.art_entry.insert(0, values[0])
+	    self.name_entry.insert(0, values[1])
+	    self.ad_entry.insert(0, values[2])
+	    self.prod_entry.insert(0, values[3])
+	    self.sp_entry.insert(0, values[4])
+	    self.pp_entry.insert(0, values[5])
 
 # Main Function
 if __name__ == "__main__":
-    if len(crud.get_inv_entries()) > 0:
-        crud.add_test_data(art='420', name='not69', loc='HOME', stock=1.25)
-    #if len(crud.get_art_entries()) > 0:
-    crud.add_art_entry(art='123456', name='Test', info='additional Info', ek=69.69, vk=420.69)
+#    if len(crud.get_inv_entries()) > 0:
+#    crud.add_test_data(art='420', name='not69', loc='HOME', stock=1.25)
+#    if len(crud.get_art_entries()) > 0:
+#    crud.add_art_entry(art='123456', name='Test', info='additional Info', ek=69.69, vk=420.69)
     app = App()
     app.mainloop()

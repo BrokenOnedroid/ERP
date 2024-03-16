@@ -5,9 +5,9 @@ from app.models import Article, Inventory
 from app.database import engine, SessionLocal
 
 
-def add_art_entry(art : str, name:str, info: str = '', ek: float = 0.0, vk: float = 0.0):
+def add_art_entry(art : str, name:str, info: str = '', ek: float = 0.0, vk: float = 0.0, producer: str = "Unbekannt"):
     with engine.connect() as db:
-        insert_stmt = insert(Article).values(article_number=art, name=name, additional_info=info, ek=ek, vk=vk)
+        insert_stmt = insert(Article).values(article_number=art, name=name, additional_information=info, purchase_price=ek, selling_price=vk, producer=producer)
         db.execute(insert_stmt)
         db.commit()
 
