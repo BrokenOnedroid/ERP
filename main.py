@@ -120,7 +120,7 @@ class Article(customtkinter.CTkToplevel):
         self.style.theme_use('default')
         
         # table config
-        self.table_Art = ttk.Treeview(self, columns=("Artikel", "Name", "Zusatz", "Hersteller", "VK", "EK"))
+        self.table_Art = ttk.Treeview(self, selectmode="extended", columns=("Artikel", "Name", "Zusatz", "Hersteller", "VK", "EK"))
         self.style.configure("Treeview", background="#D3D3D3", foreground="black", rowheight=25, fieldbackground="#D3D3D3")
 
         #Column settings
@@ -145,41 +145,42 @@ class Article(customtkinter.CTkToplevel):
         self.data_frame = customtkinter.CTkFrame(self)
         self.data_frame.pack(fill="x", expand="yes", padx=20)
 
-        art_label = customtkinter.CTkLabel(self.data_frame, text="Artikel-Nr.")
-        art_label.grid(row=0, column=0, padx=10, pady=10)
-        art_entry = customtkinter.CTkEntry(self.data_frame)
-        art_entry.grid(row=0, column=1, padx=10, pady=10)
+        self.art_label = customtkinter.CTkLabel(self.data_frame, text="Artikel-Nr.")
+        self.art_label.grid(row=0, column=0, padx=10, pady=10)
+        self.art_entry = customtkinter.CTkEntry(self.data_frame)
+        self.art_entry.grid(row=0, column=1, padx=10, pady=10)
 
-        name_label = customtkinter.CTkLabel(self.data_frame, text="Name")
-        name_label.grid(row=0, column=2, padx=10, pady=10)
-        name_entry = customtkinter.CTkEntry(self.data_frame)
-        name_entry.grid(row=0, column=3, padx=10, pady=10)
+        self.name_label = customtkinter.CTkLabel(self.data_frame, text="Name")
+        self.name_label.grid(row=0, column=2, padx=10, pady=10)
+        self.name_entry = customtkinter.CTkEntry(self.data_frame)
+        self.name_entry.grid(row=0, column=3, padx=10, pady=10)
 
-        add_label = customtkinter.CTkLabel(self.data_frame, text="Zusatz")
-        add_label.grid(row=0, column=4, padx=10, pady=10)
-        add_entry = customtkinter.CTkEntry(self.data_frame)
-        add_entry.grid(row=0, column=5, padx=10, pady=10)
+        self.add_label = customtkinter.CTkLabel(self.data_frame, text="Zusatz")
+        self.add_label.grid(row=0, column=4, padx=10, pady=10)
+        self.add_entry = customtkinter.CTkEntry(self.data_frame)
+        self.add_entry.grid(row=0, column=5, padx=10, pady=10)
 
-        prod_label = customtkinter.CTkLabel(self.data_frame, text="Hersteller")
-        prod_label.grid(row=1, column=0, padx=10, pady=10)
-        prod_entry = customtkinter.CTkEntry(self.data_frame)
-        prod_entry.grid(row=1, column=1, padx=10, pady=10)
+        self.prod_label = customtkinter.CTkLabel(self.data_frame, text="Hersteller")
+        self.prod_label.grid(row=1, column=0, padx=10, pady=10)
+        self.prod_entry = customtkinter.CTkEntry(self.data_frame)
+        self.prod_entry.grid(row=1, column=1, padx=10, pady=10)
 
-        sp_label = customtkinter.CTkLabel(self.data_frame, text="VK")
-        sp_label.grid(row=1, column=2, padx=10, pady=10)
-        sp_entry = customtkinter.CTkEntry(self.data_frame)
-        sp_entry.grid(row=1, column=3, padx=10, pady=10)
+        self.sp_label = customtkinter.CTkLabel(self.data_frame, text="VK")
+        self.sp_label.grid(row=1, column=2, padx=10, pady=10)
+        self.sp_entry = customtkinter.CTkEntry(self.data_frame)
+        self.sp_entry.grid(row=1, column=3, padx=10, pady=10)
 
-        pp_label = customtkinter.CTkLabel(self.data_frame, text="EK")
-        pp_label.grid(row=1, column=4, padx=10, pady=10)
-        pp_entry = customtkinter.CTkEntry(self.data_frame)
-        pp_entry.grid(row=1, column=5, padx=10, pady=10)
+        self.pp_label = customtkinter.CTkLabel(self.data_frame, text="EK")
+        self.pp_label.grid(row=1, column=4, padx=10, pady=10)
+        self.pp_entry = customtkinter.CTkEntry(self.data_frame)
+        self.pp_entry.grid(row=1, column=5, padx=10, pady=10)
 
         # button Close the window
         self.new_button = customtkinter.CTkButton(self, text="Schließen", command=self.close)
         self.new_button.pack(pady=40)
 
         self.get_art_data()
+        self.table_Art.bind("", self.selected_record())
 
     def close(self):
         self.destroy()
@@ -190,9 +191,22 @@ class Article(customtkinter.CTkToplevel):
             self.counter += 1
             #print("Record " + str(self.counter) + ":", record)
             self.table_Art.insert("", "end", text=record.id, values=(record.article_number, record.name, record.additional_information, record.producer, record.purchase_price, record.selling_price))
-
+    
+    def selected_record(self):   
+        self.selected = self.table_Art.focus()
+        print(list(self.selected))
+        if not self.selected == '':
+	        # Grab record values
+            self.values = self.table_Art.item(self.selected, 'values')
+            print(self.values)
+            self.art_entry.insert(0, self.values[0])
+            self.name_entry.insert(0, self.values[1])
+            self.ad_entry.insert(0, self.values[2])
+            self.prod_entry.insert(0, self.values[3])
+            self.sp_entry.insert(0, self.values[4])
+            self.pp_entry.insert(0, self.values[5])
         
-    # Clear entry boxes
+"""    # Clear entry boxes
     def clear_entries(self):
 	    # Clear entry boxes
 	    self.art_entry.delete(0)
@@ -200,30 +214,22 @@ class Article(customtkinter.CTkToplevel):
         self.add_entry.delete(0, END)
 	    self.prod_entry.delete(0, END)
 	    self.sp_entry.delete(0, END)
-	    self.pp_entry.delete(0, END)
+	    self.pp_entry.delete(0, END)"""
 
     # Select Record
-    def select_record(self):
-	    # Clear entry boxes
-	    self.art_entry.delete(0, END)
-	    self.name_entry.delete(0, END)
-	    self.prod_entry.delete(0, END)
-	    self.address_entry.delete(0, END)
-	    self.sp_entry.delete(0, END)
-	    self.pp_entry.delete(0, END)
-
-	    # Grab record Number
-#	    self.selected = my_tree.focus()
+"""    def select_record(self):
+        # Grab record Number
+	    self.selected = self.table_art.focus()
 	    # Grab record values
-#	    self.values = my_tree.item(selected, 'values')
+	    self.values = self.table_art.item(self.selected, 'values')
 
 	    # outpus to entry boxes
-	    self.art_entry.insert(0, values[0])
-	    self.name_entry.insert(0, values[1])
-	    self.ad_entry.insert(0, values[2])
-	    self.prod_entry.insert(0, values[3])
-	    self.sp_entry.insert(0, values[4])
-	    self.pp_entry.insert(0, values[5])
+	    self.art_entry.insert(0, self.values[0])
+	    self.name_entry.insert(0, self.values[1])
+	    self.ad_entry.insert(0, self.values[2])
+	    self.prod_entry.insert(0, self.values[3])
+	    self.sp_entry.insert(0, self.values[4])
+	    self.pp_entry.insert(0, self.values[5])"""
 
 # Main Function
 if __name__ == "__main__":

@@ -14,7 +14,7 @@ Articles:
     2. articlenumber
     3. name
     4. purchase_price
-    5. selling_price#
+    5. selling_price
 Inventory:
     1. ID
     2. articlenumber
