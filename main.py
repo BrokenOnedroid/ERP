@@ -116,7 +116,7 @@ class Article(customtkinter.CTkToplevel):
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
         self.art_frame = ArtTable(self)
-        self.art_frame.pack(padx=20, pady=10, anchor=tk.CENTER, fill='x') 
+        self.art_frame.pack(padx=20, pady=10, anchor=tk.CENTER, fill="both") 
 
         #data boxes
         self.data_frame = ArtDataFrame(self)
@@ -125,31 +125,26 @@ class Article(customtkinter.CTkToplevel):
         self.button_frame = ArtButtonFrame(self)
         self.button_frame.pack(fill="x", expand="yes", padx=20, pady=10)
 
-        # button Close the window
-        self.new_button = customtkinter.CTkButton(self, text="Schließen", command=self.close)
-        self.new_button.pack(pady=10)
-
-
     def close(self):
         self.destroy()
 
     def selected_record(self):   
-        self.selected = self.table_Art.focus()
+        self.selected = self.art_frame.focus()
         print(list(self.selected))
         if not self.selected == '':
 	        # Grab record values
-            self.values = self.table_Art.item(self.selected, 'values')
+            self.values = self.art_frame.item(self.selected, 'values')
             print(self.values)
-            self.art_entry.insert(0, self.values[0])
-            self.name_entry.insert(0, self.values[1])
-            self.ad_entry.insert(0, self.values[2])
-            self.prod_entry.insert(0, self.values[3])
-            self.sp_entry.insert(0, self.values[4])
-            self.pp_entry.insert(0, self.values[5])
+            self.data_frame.art_entry.insert(0, self.values[0])
+            self.data_frame.name_entry.insert(0, self.values[1])
+#            self.data_frame.ad_entry.insert(0, self.values[2])
+            self.data_frame.prod_entry.insert(0, self.values[3])
+            self.data_frame.sp_entry.insert(0, self.values[4])
+            self.data_frame.pp_entry.insert(0, self.values[5])
         
 class ArtTable(customtkinter.CTkFrame):
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
         
         #table style
         self.style = ttk.Style()
@@ -177,7 +172,8 @@ class ArtTable(customtkinter.CTkFrame):
         
         self.get_art_data()
         self.table_art.bind("")#, self.selected_record())
-            
+        self.table_art.pack(fill="both")
+                    
     def get_art_data(self):
         records = crud.get_art_entries()
         for record in records:
