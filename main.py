@@ -76,29 +76,37 @@ class Inventory(customtkinter.CTkToplevel):
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        self.table_Inv = ttk.Treeview(self, columns=("Name", "Anzahl", "Ort"))
-        self.table_Inv.heading("#0", text="Artikel")
-        self.table_Inv.heading("Name", text="Bezeichnung")
-        self.table_Inv.heading("Anzahl", text="Anzahl")
-        self.table_Inv.heading("Ort", text="Ort")
-
-        self.table_Inv.pack(padx=20, pady=20, anchor=tk.CENTER, fill='x') 
+        self.table_inv = InventoryTable(self)
+        self.table_inv.pack(padx=20, pady=20, anchor=customtkinter.CENTER, fill='x')
 
         # Close the window
         self.new_button = customtkinter.CTkButton(self, text="Schließen", command=self.close)
         self.new_button.pack(pady=40)
-
-        self.get_inventory_data()
     
     def close(self):
         self.destroy()
+
+class InventoryTable(customtkinter.CTkFrame):
+    def __init__(self, master, *args, **kwargs):
+        super().__init__(master, *args, **kwargs)
+        
+        self.counter : int = 0
+        
+        self.table_inv : ttk.Treeview = ttk.Treeview(self, columns=("Name", "Anzahl", "Ort"))
+        self.table_inv.heading("#0", text="Artikel")
+        self.table_inv.heading("Name", text="Bezeichnung")
+        self.table_inv.heading("Anzahl", text="Anzahl")
+        self.table_inv.heading("Ort", text="Ort")
+
+        self.table_inv.pack(anchor=tk.CENTER, fill="both") 
+        self.get_inventory_data()
 
     def get_inventory_data(self):
         records = crud.get_inv_entries()
         for record in records:
             self.counter += 1
             #print("Record " + str(self.counter) + ":", record)
-            self.table_Inv.insert("", "end", text=record.article_number, values=(record.name, record.stock, record.location))
+            self.table_inv.insert("", "end", text=record.article_number, values=(record.name, record.stock, record.location))        
 
 class Article(customtkinter.CTkToplevel):
     def __init__(self, *args, **kwargs):
