@@ -3,7 +3,7 @@ from app.database import SessionLocal
 from sqlalchemy import insert 
 from app.models import Article, Inventory
 from app.database import engine, SessionLocal
-
+import app.schemas
 
 def add_art_entry(art : str, name:str, info: str = '', ek: float = 0.0, vk: float = 0.0, producer: str = "Unbekannt"):
     with engine.connect() as db:
@@ -11,8 +11,18 @@ def add_art_entry(art : str, name:str, info: str = '', ek: float = 0.0, vk: floa
         db.execute(insert_stmt)
         db.commit()
 
-def del_art_entry(db: Session):
-    pass
+def del_art_entry(id: int) -> int:
+    with engine.connect() as db:
+        art : Article  = db.query(Article).filter(Article.id == id).first()
+        #lager = db.query(Inventory).filter(Inventory.article_number == art.article_number).first()
+        #if lager is None:        
+        db.delete(art)
+        db.commit()
+        return art.id
+        #    return Article.id, True
+        #else:
+        #    return art.id, False
+            
 
 def update_art_entry(db: Session):
     pass

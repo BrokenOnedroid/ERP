@@ -9,7 +9,10 @@ from sqlalchemy import text
 # GUI Imports
 import tkinter as tk
 from tkinter import ttk
+from tkinter.messagebox import showinfo
 import customtkinter
+
+from app.schemas import ArtCreate
 
 # creating the db tabels
 models.Base.metadata.create_all(bind=engine)
@@ -71,7 +74,7 @@ class Inventory(customtkinter.CTkToplevel):
         self.geometry("950x450")
         self.minsize(900, 450)
         self.maxsize(1000, 450) 
-        self.counter = 0      
+        self.counter : int= 0      
         # header
         self.title_label = customtkinter.CTkLabel(self, text='Inventar', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
@@ -102,7 +105,7 @@ class InventoryTable(customtkinter.CTkFrame):
         self.get_inventory_data()
 
     def get_inventory_data(self):
-        records = crud.get_inv_entries()
+        records : Article = crud.get_inv_entries()
         for record in records:
             self.counter += 1
             #print("Record " + str(self.counter) + ":", record)
@@ -123,32 +126,44 @@ class Article(customtkinter.CTkToplevel):
         self.title_label = customtkinter.CTkLabel(self, text='Artikelübersicht', fg_color='transparent', font=self.header_font)
         self.title_label.pack(padx=20, pady=20, anchor=customtkinter.CENTER)
 
-        self.art_frame = ArtTable(self)
+        self.art_frame = ArtTable(master=self)
         self.art_frame.pack(padx=20, pady=10, anchor=tk.CENTER, fill="both") 
 
+
         #data boxes
-        self.data_frame = ArtDataFrame(self)
+        self.data_frame = ArtDataFrame(master=self)
         self.data_frame.pack(fill="x", expand="yes", padx=20, pady=10)
 
-        self.button_frame = ArtButtonFrame(self)
+        self.button_frame = ArtButtonFrame(master=self)
         self.button_frame.pack(fill="x", expand="yes", padx=20, pady=10)
+        
 
+        child_id = self.art_frame.table_art.get_children()[0]
+        self.art_frame.table_art.focus(child_id)
+        self.art_frame.table_art.selection_set(child_id)
+        self.art_frame.focus()
+        self.art_frame.table_art.bind('<<TreeviewSelect>>', self.selected_record) 
+        
     def close(self):
         self.destroy()
 
-    def selected_record(self):   
-        self.selected = self.art_frame.focus()
-        print(list(self.selected))
-        if not self.selected == '':
+    def selected_record(self, event):   
+        tree = event.widget
+        selection = [tree.item(item)["text"] for item in tree.selection()]
+        print("selected items:", selection)
+     
+        """self.selected_item = self.art_frame.table_art.selection_get()
+        print('selected' + self.selected)
+        if self.selected != '' :
 	        # Grab record values
             self.values = self.art_frame.item(self.selected, 'values')
             print(self.values)
             self.data_frame.art_entry.insert(0, self.values[0])
             self.data_frame.name_entry.insert(0, self.values[1])
-#            self.data_frame.ad_entry.insert(0, self.values[2])
+            self.data_frame.add_entry.insert(0, self.values[2])
             self.data_frame.prod_entry.insert(0, self.values[3])
             self.data_frame.sp_entry.insert(0, self.values[4])
-            self.data_frame.pp_entry.insert(0, self.values[5])
+            self.data_frame.pp_entry.insert(0, self.values[5])"""
         
 class ArtTable(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -179,7 +194,7 @@ class ArtTable(customtkinter.CTkFrame):
         self.table_art.heading("EK", anchor="center",text="EK")
         
         self.get_art_data()
-        self.table_art.bind("")#, self.selected_record())
+        #self.table_art.bind("")#, master.selected_record())
         self.table_art.pack(fill="both")
                     
     def get_art_data(self):
@@ -227,33 +242,30 @@ class ArtButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
 
-        self.update_button = customtkinter.CTkButton(self, text="Update Record")#, command=update_record)
+        self.update_button = customtkinter.CTkButton(self, text="Eintrag aktualisieren")#, command=update_record)
         self.update_button.grid(row=0, column=0, padx=10, pady=10)
 
-        self.add_button = customtkinter.CTkButton(self, text="Add Record")
+        self.add_button = customtkinter.CTkButton(self, text="Eintrag hinzufügen", command=self.add_record)
         self.add_button.grid(row=0, column=1, padx=10, pady=10)
 
-        self.remove_all_button = customtkinter.CTkButton(self, text="Remove All Records", command=self.remove_all)
-        self.remove_all_button.grid(row=0, column=2, padx=10, pady=10)
-
-        self.remove_one_button = customtkinter.CTkButton(self, text="Remove One Selected", command=self.remove_one)
-        self.remove_one_button.grid(row=0, column=3, padx=10, pady=10)
-
-        self.remove_many_button = customtkinter.CTkButton(self, text="Remove Many Selected", command=self.remove_many)
-        self.remove_many_button.grid(row=1, column=0, padx=10, pady=10)
+        self.remove_one_button = customtkinter.CTkButton(self, text="Eintrag löschen", command=self.remove_one)
+        self.remove_one_button.grid(row=0, column=2, padx=10, pady=10)
 
         self.move_up_button = customtkinter.CTkButton(self, text="Move Up", command=self.up)
-        self.move_up_button.grid(row=1, column=1, padx=10, pady=10)
+        self.move_up_button.grid(row=1, column=0, padx=10, pady=10)
 
         self.move_down_button = customtkinter.CTkButton(self, text="Move Down", command=self.down)
-        self.move_down_button.grid(row=1, column=2, padx=10, pady=10)
+        self.move_down_button.grid(row=1, column=1, padx=10, pady=10)
 
-        self.select_record_button = customtkinter.CTkButton(self, text="Clear Entry Boxes", command=self.clear_entries)
-        self.select_record_button.grid(row=1, column=3, padx=10, pady=10)
+        self.select_record_button = customtkinter.CTkButton(self, text="Einträge bereinigen", command=self.clear_entries)
+        self.select_record_button.grid(row=1, column=2, padx=10, pady=10)
         
         self.close_button = customtkinter.CTkButton(self, text="Fenster schließen", fg_color="red", command=master.close)
-        self.close_button.grid(row=1, column=4, padx=10)
-        
+        self.close_button.grid(row=1, column=4, padx=10, sticky="ew")
+    
+    def add_record(self):
+        art : ArtCreate = ArtCreate()
+           
     def remove_all(self):
         pass
     
