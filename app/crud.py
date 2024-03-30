@@ -3,25 +3,22 @@ from app.database import SessionLocal
 from sqlalchemy import insert 
 from app.models import Article, Inventory
 from app.database import engine, SessionLocal
-import app.schemas
+from app.schemas import ArtCreate
 
-def add_art_entry(art : str, name:str, info: str = '', ek: float = 0.0, vk: float = 0.0, producer: str = "Unbekannt"):
+def add_art_entry(art: ArtCreate):
     with engine.connect() as db:
-        insert_stmt = insert(Article).values(article_number=art, name=name, additional_information=info, purchase_price=ek, selling_price=vk, producer=producer)
+        insert_stmt = insert(Article).values(article_number=art.art_number, name=art.art_name, additional_information=art.art_info, purchase_price=art.ek, selling_price=art.vk, producer=art.producer)
         db.execute(insert_stmt)
         db.commit()
 
-def del_art_entry(id: int) -> int:
+def del_art_entry(art_num : int) -> int:
     with engine.connect() as db:
-        art : Article  = db.query(Article).filter(Article.id == id).first()
+        art : Article  = db.query(Article).filter(Article.article_number == id).first()
         #lager = db.query(Inventory).filter(Inventory.article_number == art.article_number).first()
         #if lager is None:        
         db.delete(art)
         db.commit()
         return art.id
-        #    return Article.id, True
-        #else:
-        #    return art.id, False
             
 
 def update_art_entry(db: Session):

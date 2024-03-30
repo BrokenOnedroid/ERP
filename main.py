@@ -128,7 +128,7 @@ class Article(customtkinter.CTkToplevel):
 
         self.art_frame = ArtTable(master=self)
         self.art_frame.pack(padx=20, pady=10, anchor=tk.CENTER, fill="both") 
-
+        self.art_frame.table_art.bind('<<TreeviewSelect>>', self.selected_record) 
 
         #data boxes
         self.data_frame = ArtDataFrame(master=self)
@@ -137,46 +137,47 @@ class Article(customtkinter.CTkToplevel):
         self.button_frame = ArtButtonFrame(master=self)
         self.button_frame.pack(fill="x", expand="yes", padx=20, pady=10)
         
-
+        self.set_first_focus()
+        
+    def set_first_focus(self) -> None:
         child_id = self.art_frame.table_art.get_children()[0]
         self.art_frame.table_art.focus(child_id)
         self.art_frame.table_art.selection_set(child_id)
-        self.art_frame.focus()
-        self.art_frame.table_art.bind('<<TreeviewSelect>>', self.selected_record) 
+        self.art_frame.focus()        
+
         
-    def close(self):
+    def close(self) -> None:
         self.destroy()
 
-    def selected_record(self, event):   
-        tree = event.widget
-        selection = [tree.item(item)["text"] for item in tree.selection()]
-        print("selected items:", selection)
-     
-        """self.selected_item = self.art_frame.table_art.selection_get()
-        print('selected' + self.selected)
-        if self.selected != '' :
-	        # Grab record values
-            self.values = self.art_frame.item(self.selected, 'values')
-            print(self.values)
-            self.data_frame.art_entry.insert(0, self.values[0])
-            self.data_frame.name_entry.insert(0, self.values[1])
-            self.data_frame.add_entry.insert(0, self.values[2])
-            self.data_frame.prod_entry.insert(0, self.values[3])
-            self.data_frame.sp_entry.insert(0, self.values[4])
-            self.data_frame.pp_entry.insert(0, self.values[5])"""
+    def selected_record(self, event) -> None:   
         
+        self.data_frame.clean_entries()
+        
+        tree = event.widget
+        selection = [tree.item(item)['values'] for item in tree.selection()]
+
+        self.data_frame.art_entry.insert(0, selection[0][0])
+        self.data_frame.name_entry.insert(0, selection[0][1])
+        self.data_frame.add_entry.insert(0, selection[0][2])
+        self.data_frame.prod_entry.insert(0, selection[0][3])
+        self.data_frame.sp_entry.insert(0, selection[0][4])
+        self.data_frame.pp_entry.insert(0, selection[0][5])
+            
 class ArtTable(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
-        
+
+        self.counter : int = 0   
+                
         #table style
         self.style = ttk.Style()
         self.style.theme_use('default')
-        self.counter = 0   
+
+        # TODO  Heanding font change 
         
         # table config
-        self.table_art = ttk.Treeview(self, selectmode="extended", columns=("Artikel", "Name", "Zusatz", "Hersteller", "VK", "EK"))
-        self.style.configure("Treeview", background="#D3D3D3", foreground="black", rowheight=25, fieldbackground="#D3D3D3")
+        self.table_art = ttk.Treeview(self, selectmode="browse", columns=("Artikel", "Name", "Zusatz", "Hersteller", "VK", "EK"))
+        self.style.configure("Treeview", background="#D3D3D3", foreground="black", rowheight=25, fieldbackground="#D3D3D3", font=('None', 18))
 
         #Column settings
         self.table_art.column("#0", width=0, stretch=False)
@@ -185,7 +186,7 @@ class ArtTable(customtkinter.CTkFrame):
         self.table_art.column("VK", anchor="e", width=20)
         self.table_art.column("EK", anchor="e", width=20)
     
-        self.table_art.heading("#0", text="ID", anchor="w" )
+        self.table_art.heading("#0", text="ID", anchor="w")
         self.table_art.heading("Artikel", anchor="w", text="Artikel")
         self.table_art.heading("Name", anchor="w",text="Name")
         self.table_art.heading("Zusatz", anchor="w",text="Zusatz")
@@ -194,10 +195,12 @@ class ArtTable(customtkinter.CTkFrame):
         self.table_art.heading("EK", anchor="center",text="EK")
         
         self.get_art_data()
-        #self.table_art.bind("")#, master.selected_record())
         self.table_art.pack(fill="both")
                     
     def get_art_data(self):
+        for i in self.table_art.get_children():
+                self.table_art.delete(i)
+        
         records = crud.get_art_entries()
         for record in records:
             self.counter += 1
@@ -238,6 +241,16 @@ class ArtDataFrame(customtkinter.CTkFrame):
         self.pp_entry = customtkinter.CTkEntry(self)
         self.pp_entry.grid(row=1, column=5, padx=10, pady=10)
         
+        
+    def clean_entries(self) -> None :
+        self.pp_entry.delete(0, "end")
+        self.sp_entry.delete(0, "end")
+        self.prod_entry.delete(0, "end")
+        self.add_entry.delete(0, "end")
+        self.name_entry.delete(0, "end")
+        self.art_entry.delete(0, "end")
+            
+        
 class ArtButtonFrame(customtkinter.CTkFrame):
     def __init__(self, master):
         super().__init__(master)
@@ -264,13 +277,23 @@ class ArtButtonFrame(customtkinter.CTkFrame):
         self.close_button.grid(row=1, column=4, padx=10, sticky="ew")
     
     def add_record(self):
-        art : ArtCreate = ArtCreate()
-           
-    def remove_all(self):
-        pass
-    
-    def remove_one(self):
-        pass
+        art_number : str = self.master.data_frame.art_entry.get()
+        art_name : str = self.master.data_frame.name_entry.get()
+        art_add : str =  self.master.data_frame.add_entry.get()
+        art_prod : str = self.master.data_frame.prod_entry.get()
+        art_sp : float = self.master.data_frame.sp_entry.get()
+        art_pp : float = self.master.data_frame.pp_entry.get()
+        
+        new_art : ArtCreate = ArtCreate(art_number=art_number, art_name=art_name, art_info=art_add, ek=art_pp, vk=art_sp, producer=art_prod)
+        
+        crud.add_art_entry(new_art)
+        
+        self.master.art_frame.get_art_data()
+               
+    def remove_one(self) -> bool:
+        # only first item
+        art_num = self.master.data_frame.art_entry.get()
+        crud.del_art_entry(art_num=art_num)
     
     def remove_many(self):
         pass
@@ -281,8 +304,8 @@ class ArtButtonFrame(customtkinter.CTkFrame):
     def down(self):
         pass
     
-    def clear_entries(Self):
-        pass
+    def clear_entries(self):
+        self.master.data_frame.clean_entries()
     
 
 # Main Function
