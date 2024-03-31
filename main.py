@@ -154,14 +154,19 @@ class Article(customtkinter.CTkToplevel):
         self.data_frame.clean_entries()
         
         tree = event.widget
-        selection = [tree.item(item)['values'] for item in tree.selection()]
-
-        self.data_frame.art_entry.insert(0, selection[0][0])
-        self.data_frame.name_entry.insert(0, selection[0][1])
-        self.data_frame.add_entry.insert(0, selection[0][2])
-        self.data_frame.prod_entry.insert(0, selection[0][3])
-        self.data_frame.sp_entry.insert(0, selection[0][4])
-        self.data_frame.pp_entry.insert(0, selection[0][5])
+        #result is one List cause of browse setting in treeview
+        selection : list= [tree.item(item)['values'] for item in tree.selection()]
+        
+        #print(selection_id)
+        if selection != []:
+            selection_id : int = [tree.item(item)['text'] for item in tree.selection()]
+            self.data_frame.art_entry.insert(0, selection[0][0])
+            self.data_frame.name_entry.insert(0, selection[0][1])
+            self.data_frame.add_entry.insert(0, selection[0][2])
+            self.data_frame.prod_entry.insert(0, selection[0][3])
+            self.data_frame.sp_entry.insert(0, selection[0][4])
+            self.data_frame.pp_entry.insert(0, selection[0][5])
+            self.data_frame.id_entry.insert(0, selection_id)
             
 class ArtTable(customtkinter.CTkFrame):
     def __init__(self, master, *args, **kwargs):
@@ -183,8 +188,6 @@ class ArtTable(customtkinter.CTkFrame):
         self.table_art.column("#0", width=0, stretch=False)
         self.table_art.column("Artikel", width=60)
         self.table_art.column("Hersteller", width=100)
-        self.table_art.column("VK", anchor="e", width=20)
-        self.table_art.column("EK", anchor="e", width=20)
     
         self.table_art.heading("#0", text="ID", anchor="w")
         self.table_art.heading("Artikel", anchor="w", text="Artikel")
@@ -192,7 +195,7 @@ class ArtTable(customtkinter.CTkFrame):
         self.table_art.heading("Zusatz", anchor="w",text="Zusatz")
         self.table_art.heading("Hersteller", anchor="center", text="Hersteller")
         self.table_art.heading("VK", anchor="center",text="VK")
-        self.table_art.heading("EK", anchor="center",text="EK")
+        self.table_art.heading("EK", anchor="center",text="EK" )
         
         self.get_art_data()
         self.table_art.pack(fill="both")
@@ -241,6 +244,10 @@ class ArtDataFrame(customtkinter.CTkFrame):
         self.pp_entry = customtkinter.CTkEntry(self)
         self.pp_entry.grid(row=1, column=5, padx=10, pady=10)
         
+        self.id_label = customtkinter.CTkLabel(self, text="ID")
+        self.id_label.grid(row=1, column=6, padx=10, pady=10)
+        self.id_entry = customtkinter.CTkEntry(self, )
+        self.id_entry.grid(row=1, column=7, padx=10, pady=10)
         
     def clean_entries(self) -> None :
         self.pp_entry.delete(0, "end")
@@ -249,6 +256,7 @@ class ArtDataFrame(customtkinter.CTkFrame):
         self.add_entry.delete(0, "end")
         self.name_entry.delete(0, "end")
         self.art_entry.delete(0, "end")
+        self.id_entry.delete(0, "end")
             
         
 class ArtButtonFrame(customtkinter.CTkFrame):
@@ -264,12 +272,6 @@ class ArtButtonFrame(customtkinter.CTkFrame):
         self.remove_one_button = customtkinter.CTkButton(self, text="Eintrag löschen", command=self.remove_one)
         self.remove_one_button.grid(row=0, column=2, padx=10, pady=10)
 
-        self.move_up_button = customtkinter.CTkButton(self, text="Move Up", command=self.up)
-        self.move_up_button.grid(row=1, column=0, padx=10, pady=10)
-
-        self.move_down_button = customtkinter.CTkButton(self, text="Move Down", command=self.down)
-        self.move_down_button.grid(row=1, column=1, padx=10, pady=10)
-
         self.select_record_button = customtkinter.CTkButton(self, text="Einträge bereinigen", command=self.clear_entries)
         self.select_record_button.grid(row=1, column=2, padx=10, pady=10)
         
@@ -281,8 +283,8 @@ class ArtButtonFrame(customtkinter.CTkFrame):
         art_name : str = self.master.data_frame.name_entry.get()
         art_add : str =  self.master.data_frame.add_entry.get()
         art_prod : str = self.master.data_frame.prod_entry.get()
-        art_sp : float = self.master.data_frame.sp_entry.get()
-        art_pp : float = self.master.data_frame.pp_entry.get()
+        art_sp : float = float(self.master.data_frame.sp_entry.get())
+        art_pp : float = float(self.master.data_frame.pp_entry.get())
         
         new_art : ArtCreate = ArtCreate(art_number=art_number, art_name=art_name, art_info=art_add, ek=art_pp, vk=art_sp, producer=art_prod)
         
@@ -292,16 +294,12 @@ class ArtButtonFrame(customtkinter.CTkFrame):
                
     def remove_one(self) -> bool:
         # only first item
-        art_num = self.master.data_frame.art_entry.get()
-        crud.del_art_entry(art_num=art_num)
+        art_id : int = self.master.data_frame.id_entry.get()
+        crud.del_art_entry(art_id=art_id)
+        
+        self.master.art_frame.get_art_data()
     
     def remove_many(self):
-        pass
-    
-    def up(self):
-        pass
-    
-    def down(self):
         pass
     
     def clear_entries(self):

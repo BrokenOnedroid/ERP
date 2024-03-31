@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
-from sqlalchemy import insert 
+from sqlalchemy import insert, delete 
 from app.models import Article, Inventory
 from app.database import engine, SessionLocal
 from app.schemas import ArtCreate
@@ -11,14 +11,12 @@ def add_art_entry(art: ArtCreate):
         db.execute(insert_stmt)
         db.commit()
 
-def del_art_entry(art_num : int) -> int:
+def del_art_entry(art_id : int) -> int:
     with engine.connect() as db:
-        art : Article  = db.query(Article).filter(Article.article_number == id).first()
-        #lager = db.query(Inventory).filter(Inventory.article_number == art.article_number).first()
-        #if lager is None:        
-        db.delete(art)
+        delete_stmt = delete(Article).where(Article.id == art_id)
+        db.execute(delete_stmt)
         db.commit()
-        return art.id
+
             
 
 def update_art_entry(db: Session):
