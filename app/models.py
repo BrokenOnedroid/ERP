@@ -11,6 +11,7 @@ from app.database import Base
 class Base(DeclarativeBase):
     pass
 
+#ORM relationship 1 to many for Article to Inventory 
 class Article(Base):
     """
     Model for the article table.
@@ -34,7 +35,8 @@ class Inventory(Base):
     __tablename__ = "inventory"
 
     id = mapped_column(Integer, primary_key=True, index=True)                      
-    article_number = mapped_column(String(18), ForeignKey('article.article_number'), nullable=False)
+    article_id = mapped_column(String(18), ForeignKey('article.id'))
+    article_name = mapped_column(String(80))
     name = mapped_column(String(80))      
     location = mapped_column(String(20), default='NaN')   
     stock = mapped_column(Float, default=0.0)
